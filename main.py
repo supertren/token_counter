@@ -15,7 +15,7 @@ load_dotenv()
 # --- Configuration ---
 API_KEY = os.getenv("GEMINI_API_KEY")
 MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-DEFAULT_PROMPT = "System health check and tokenization metric test."
+DEFAULT_PROMPT = os.getenv("PROMPT_TEXT", "System health check and tokenization metric test.")
 
 def main():
     """
