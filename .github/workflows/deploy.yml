@@ -47,6 +47,7 @@ jobs:
           username: ${{ secrets.AZURE_USERNAME }}
           key: ${{ secrets.AZURE_KEY }}
           port: 22
+          envs: GEMINI_API_KEY,GEMINI_MODEL
           script: |
             # 0. Install Docker if not present
             if ! command -v docker &> /dev/null; then
