@@ -8,6 +8,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create a non-root user
+RUN useradd --create-home appuser
+WORKDIR /home/appuser
+USER appuser
+
 # Application Code
 COPY main.py .
 

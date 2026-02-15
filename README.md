@@ -6,6 +6,8 @@ A containerized application that counts tokens for Google Gemini model prompts. 
 
 This application provides token counting functionality for the Google Gemini API. It validates your Gemini API key, accepts a model name and prompt, executes token counting operations, and outputs metrics for monitoring purposes.
 
+The application is designed for portability and can be executed in multiple environments, including locally for development and on an Azure VM for production deployment, either directly as a Python script or as a Docker container.
+
 ### Architecture Diagram
 
 ```mermaid
@@ -92,6 +94,9 @@ Run the application:
 
 ```bash
 python main.py
+
+# Run with a custom prompt
+python main.py "Your custom prompt text goes here."
 ```
 
 ## Testing
