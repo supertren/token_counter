@@ -1,10 +1,10 @@
 # Gemini Token Counter
 
-A containerized application that counts tokens for Google Gemini 1.5 Flash model prompts. This app is designed to be deployed on an Azure VM for system health checks and tokenization metrics testing.
+A containerized application that counts tokens for Google Gemini model prompts. This app is designed to be deployed on an Azure VM for system health checks and tokenization metrics testing.
 
 ## Overview
 
-This application provides token counting functionality for the Google Gemini API. It validates your Gemini API key, executes token counting operations, and outputs metrics for monitoring purposes.
+This application provides token counting functionality for the Google Gemini API. It validates your Gemini API key, accepts a model name and prompt, executes token counting operations, and outputs metrics for monitoring purposes.
 
 ### Architecture Diagram
 
@@ -68,8 +68,12 @@ cd gemini_devops_deploy
 
 Create a `.env` file in the root directory:
 
-```bash
+```ini
+# Required: Your Google Gemini API key
 GEMINI_API_KEY=your_api_key_here
+
+# Optional: The model to use for token counting (defaults to gemini-1.5-flash)
+GEMINI_MODEL=gemini-1.5-pro
 ```
 
 Replace `your_api_key_here` with your actual Gemini API key.
@@ -89,6 +93,46 @@ Run the application:
 ```bash
 python main.py
 ```
+
+## Testing
+
+This project uses Python's built-in `unittest` framework for unit testing. The tests are located in `test_main.py` and are designed to run without making actual API calls to the Google Gemini service by using mock objects.
+
+### Running Tests
+
+To run the unit tests, execute the following command from the root directory:
+
+```bash
+python -m unittest discover
+```
+
+This will automatically find and run all tests in the project.
+
+## Continuous Integration and Deployment (CI/CD)
+
+This project is configured with a GitHub Actions workflow to automate testing and deployment. On every push to the `main` branch, the following process is triggered:
+
+```mermaid
+graph TD
+    A[Push to main] --> B{Run Unit Tests};
+    B -- Tests Pass --> C{Deploy to Azure VM};
+    B -- Tests Fail --> D[Stop Workflow];
+    C --> E[Container Restarted on VM];
+```
+
+### Workflow Details
+
+The workflow is defined in `.github/workflows/deploy.yml` and consists of two main jobs:
+
+1.  **`test`**:
+    -   Checks out the source code.
+    -   Sets up a Python environment.
+    -   Installs all required dependencies.
+    -   Runs the unit tests using `python -m unittest discover`.
+
+2.  **`deploy-container`**:
+    -   This job only runs if the `test` job completes successfully.
+    -   It connects to the Azure VM via SSH and executes a script to pull the latest code, inject the `GEMINI_API_KEY` secret, and restart the Docker container.
 
 ## Docker Deployment
 
@@ -159,14 +203,18 @@ docker-compose logs gemini_counter
 
 ## Project Structure
 
-```
+```bash
 gemini_devops_deploy/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml     # GitHub Actions CI/CD workflow
 ├── main.py                # Main application code
+├── test_main.py           # Unit tests
 ├── requirements.txt       # Python dependencies
-├── Dockerfile            # Container configuration
-├── docker-compose.yml    # Docker Compose orchestration
-├── .env                  # Environment variables (not in repo)
-└── README.md            # This file
+├── Dockerfile             # Container configuration
+├── docker-compose.yml     # Docker Compose orchestration
+├── .env                   # Environment variables (not in repo)
+└── README.md              # This file
 ```
 
 ## Application Details
