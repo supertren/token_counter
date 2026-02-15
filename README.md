@@ -6,6 +6,49 @@ A containerized application that counts tokens for Google Gemini 1.5 Flash model
 
 This application provides token counting functionality for the Google Gemini API. It validates your Gemini API key, executes token counting operations, and outputs metrics for monitoring purposes.
 
+### Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph "Azure VM"
+        subgraph "Docker Container"
+            APP["Token Counter<br/>Application"]
+            GENAI["Google Generative AI<br/>Client"]
+        end
+        ENV["Environment<br/>Variables<br/>.env"]
+    end
+    
+    API["Google Gemini<br/>API"]
+    
+    ENV -->|GEMINI_API_KEY| APP
+    APP -->|count_tokens| GENAI
+    GENAI -->|HTTP Request| API
+    API -->|Token Count| GENAI
+    GENAI -->|Result| APP
+```
+
+### Application Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant Main as main.py
+    participant ENV as Environment
+    participant GenAI as GenAI Client
+    participant API as Gemini API
+    
+    Main->>ENV: Load GEMINI_API_KEY
+    alt API Key Missing
+        Main->>Main: Exit with Error
+    else API Key Found
+        Main->>GenAI: Configure with API Key
+        Main->>GenAI: count_tokens(prompt)
+        GenAI->>API: Send Token Count Request
+        API->>GenAI: Return Token Count
+        GenAI->>Main: Return total_tokens
+        Main->>Main: Display Results
+    end
+```
+
 ## Prerequisites
 
 - Docker and Docker Compose installed on your Azure VM
