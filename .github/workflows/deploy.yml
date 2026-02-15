@@ -38,4 +38,5 @@ jobs:
             sudo docker compose up --build -d
             
             # 4. Logs Verification (Opcional)
+            sleep 10
             sudo docker logs gemini_counter
