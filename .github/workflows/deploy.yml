@@ -35,6 +35,10 @@ jobs:
   deploy-container:
     runs-on: ubuntu-latest
     needs: test
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      # Use the secret if present, otherwise fall back to the default model
+      GEMINI_MODEL: ${{ secrets.GEMINI_MODEL || 'gemini-1.5-flash' }}
     steps:
       - name: Deploy to Azure VM via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -58,16 +62,16 @@ jobs:
             fi
 
             # 2. Inject Secrets
-            # Use a default model if the secret is not set
-            GEMINI_MODEL_VALUE="${{ secrets.GEMINI_MODEL }}"
-            GEMINI_MODEL_VALUE="${GEMINI_MODEL_VALUE:-gemini-1.5-flash}"
-            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
-            echo "GEMINI_MODEL=$GEMINI_MODEL_VALUE" >> .env
+            echo "GEMINI_API_KEY=$GEMINI_API_KEY" > .env
+            echo "GEMINI_MODEL=$GEMINI_MODEL" >> .env
 
             # 3. Docker Lifecycle (Build & Run)
             # Forzamos rebuild para asegurar últimos cambios
             sudo docker compose up --build -d
             
-            # 4. Logs Verification (Opcional)
+            # 4. Clean up old Docker images and containers
+            sudo docker system prune -af
+
+            # 5. Logs Verification (Optional)
             sleep 10
             sudo docker logs gemini_counter

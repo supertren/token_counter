@@ -3,6 +3,7 @@ import sys
 import logging
 import argparse
 import google.generativeai as genai
+import json
 from dotenv import load_dotenv
 
 # Configure logging
@@ -39,14 +40,14 @@ def main():
     # --- Token Counting ---
     tokens = get_token_count(args.prompt, MODEL_NAME)
 
-    # --- Output ---
-    print(f"--- CONTAINER OUTPUT ---")
-    print(f"Target: {MODEL_NAME}")
-    if tokens != -1:
-        print(f"Payload Tokens: {tokens}")
-    else:
-        print(f"Payload Tokens: FAILED")
-    print(f"--- END OUTPUT ---")
+    # --- Structured Output ---
+    output_data = {
+        "target_model": MODEL_NAME,
+        "prompt_text": args.prompt,
+        "status": "SUCCESS" if tokens != -1 else "FAILED",
+        "token_count": tokens if tokens != -1 else None,
+    }
+    print(json.dumps(output_data))
 
 def get_token_count(prompt_text: str, model_name: str) -> int:
     """
@@ -68,4 +69,8 @@ def get_token_count(prompt_text: str, model_name: str) -> int:
         return -1
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logging.critical(f"An unexpected error occurred: {e}")
+        sys.exit(1)

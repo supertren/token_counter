@@ -1,20 +1,19 @@
 # Base Image
 FROM python:3.9-slim
 
-# Working Directory
+# Set up the application directory
 WORKDIR /app
 
-# Dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Create a non-root user
-RUN useradd --create-home appuser
-WORKDIR /home/appuser
+# Create a non-root user and grant permissions to the app directory
+RUN useradd --create-home appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Application Code
-COPY main.py .
+# Copy dependencies and install as the non-root user
+COPY --chown=appuser:appuser requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code as the non-root user
+COPY --chown=appuser:appuser main.py .
 
 # Execution
 CMD ["python", "main.py"]

@@ -131,13 +131,15 @@ The workflow is defined in `.github/workflows/deploy.yml` and consists of two ma
 
 1.  **`test`**:
     -   Checks out the source code.
-    -   Sets up a Python environment.
-    -   Installs all required dependencies.
-    -   Runs the unit tests using `python -m unittest discover`.
+    -   Sets up a Python environment and caches dependencies for faster runs.
+    -   Installs application and development dependencies.
+    -   Runs a `flake8` linter to enforce code quality.
+    -   Executes the unit tests to validate application logic.
 
 2.  **`deploy-container`**:
     -   This job only runs if the `test` job completes successfully.
-    -   It connects to the Azure VM via SSH and executes a script to pull the latest code, inject the `GEMINI_API_KEY` secret, and restart the Docker container.
+    -   It connects to the Azure VM via SSH and executes a deployment script.
+    -   The script pulls the latest code, injects secrets from the GitHub repository (`GEMINI_API_KEY`, `GEMINI_MODEL`), and restarts the Docker container.
 
 ## Docker Deployment
 
@@ -155,13 +157,10 @@ This will:
 
 ### View Output
 
-After running, you should see output similar to:
+After running, the application will output a single line of JSON, which is ideal for monitoring and logging systems. The output will look similar to this:
 
-```
---- CONTAINER OUTPUT ---
-Target: Gemini 1.5 Flash
-Payload Tokens: XX
---- END OUTPUT ---
+```json
+{"target_model": "gemini-1.5-flash", "prompt_text": "System health check and tokenization metric test.", "status": "SUCCESS", "token_count": 8}
 ```
 
 ## Azure VM Deployment
@@ -212,12 +211,14 @@ docker-compose logs gemini_counter
 gemini_devops_deploy/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml     # GitHub Actions CI/CD workflow
+│       └── deploy.yml     # GitHub Actions CI/CD workflow file
 ├── main.py                # Main application code
 ├── test_main.py           # Unit tests
 ├── requirements.txt       # Python dependencies
+├── requirements-dev.txt   # Development dependencies (e.g., for linting)
 ├── Dockerfile             # Container configuration
 ├── docker-compose.yml     # Docker Compose orchestration
+├── .dockerignore          # Specifies files to exclude from Docker image
 ├── .env                   # Environment variables (not in repo)
 └── README.md              # This file
 ```
