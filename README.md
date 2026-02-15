@@ -228,7 +228,7 @@ The core application that:
 - Handles errors gracefully with error codes
 
 **Key Function:**
-- `get_token_count(prompt_text)`: Returns the token count for a given prompt. Returns `-1` on error.
+- `get_token_count(prompt_text, model_name)`: Returns the token count for a given prompt and model. Returns `-1` on error.
 
 ### Dependencies
 
@@ -242,6 +242,7 @@ The core application that:
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `GEMINI_API_KEY` | Your Google Gemini API key | Yes |
+| `GEMINI_MODEL` | Gemini model for tokenization (default: `gemini-1.5-flash`) | No |
 
 ## Troubleshooting
 
