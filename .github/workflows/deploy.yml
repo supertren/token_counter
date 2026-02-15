@@ -1,0 +1,41 @@
+name: Docker Deploy to Azure
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy-container:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Azure VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_KEY }}
+          port: 22
+          script: |
+            # Variables
+            APP_DIR="/home/${{ secrets.AZURE_USERNAME }}/gemini-docker-app"
+            REPO="https://github.com/${{ github.repository }}.git"
+            
+            # 1. Clone/Update Repo
+            if [ -d "$APP_DIR" ]; then
+              cd $APP_DIR
+              git pull origin main
+            else
+              git clone $REPO $APP_DIR
+              cd $APP_DIR
+            fi
+
+            # 2. Inject Secrets
+            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+
+            # 3. Docker Lifecycle (Build & Run)
+            # Forzamos rebuild para asegurar últimos cambios
+            sudo docker compose up --build -d
+            
+            # 4. Logs Verification (Opcional)
+            sudo docker logs gemini_counter

@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  token-counter:
+    build: .
+    container_name: gemini_counter
+    env_file:
+      - .env
