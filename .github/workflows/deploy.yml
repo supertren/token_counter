@@ -59,7 +59,8 @@ jobs:
 
             # 2. Inject Secrets
             # Use a default model if the secret is not set
-            GEMINI_MODEL_VALUE=${{ secrets.GEMINI_MODEL | default('gemini-1.5-flash') }}
+            GEMINI_MODEL_VALUE="${{ secrets.GEMINI_MODEL }}"
+            GEMINI_MODEL_VALUE="${GEMINI_MODEL_VALUE:-gemini-1.5-flash}"
             echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
             echo "GEMINI_MODEL=$GEMINI_MODEL_VALUE" >> .env
 
